@@ -1,0 +1,242 @@
+{
+  "name": "Generate social captions with Caption-Pack API",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Generate social captions with Caption-Pack API\n\n**Who it's for:** automation tinkerers, indie devs, and AI-agent builders who want captions + hashtags without an LLM in the loop.\n\n**How it works:**\n1. Fill in the form (topic, audience, tone, platform, count).\n2. The HTTP Request node calls `POST /v1/caption-pack` on the Caption-Pack API.\n3. A Code node formats the returned pack into readable text.\n4. The completion page shows your captions \u2014 copy and post.\n\n**Setup:**\n1. Get a free API key (25 calls, no card): open https://caption-pack-api.onrender.com/v1/free-trial in your browser \u2014 the key is shown once, save it.\n2. In n8n, create a **Header Auth** credential: Name = `Authorization`, Value = `Bearer ` followed by your key.\n3. Open the **Call Caption-Pack API** node and select that credential.\n4. Click **Test workflow**, fill the form, submit.\n\nEach run costs 1 credit. Check your balance any time at `GET /v1/balance` with the same header. Full API contract: https://caption-pack-api.onrender.com/openapi.yaml",
+        "height": 560,
+        "width": 720,
+        "color": 1
+      },
+      "id": "53c77010-3e28-4908-b452-f3dec79008c1",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        180,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 1. Input\nFill the form and submit. Tone and platform have safe defaults.",
+        "height": 160,
+        "width": 280,
+        "color": 7
+      },
+      "id": "049b2135-9874-4433-b1b2-f3b184b06410",
+      "name": "Step 1 \u2014 Input",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        240,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 2. API call\nPOST /v1/caption-pack with your Bearer key. Needs the Header Auth credential from Setup.",
+        "height": 160,
+        "width": 280,
+        "color": 7
+      },
+      "id": "e85a7de8-f771-4708-a155-c40197602ab4",
+      "name": "Step 2 \u2014 API call",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        560,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 3. Output\nFormatted captions + credit balance, shown on the completion page.",
+        "height": 160,
+        "width": 280,
+        "color": 7
+      },
+      "id": "2ec7b946-2abc-41ff-af27-0a7e73069ab4",
+      "name": "Step 3 \u2014 Output",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        880,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "formTitle": "Generate Social Captions",
+        "formDescription": "Powered by the Caption-Pack API \u2014 deterministic captions + hashtags, no LLM in the loop. Each run costs 1 credit.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Topic",
+              "fieldType": "text",
+              "requiredField": true,
+              "placeholder": "e.g. morning productivity"
+            },
+            {
+              "fieldLabel": "Audience",
+              "fieldType": "text",
+              "requiredField": true,
+              "placeholder": "e.g. remote workers"
+            },
+            {
+              "fieldLabel": "Platform",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "instagram"
+                  },
+                  {
+                    "option": "linkedin"
+                  },
+                  {
+                    "option": "x"
+                  },
+                  {
+                    "option": "tiktok"
+                  }
+                ]
+              },
+              "requiredField": false
+            },
+            {
+              "fieldLabel": "Tone",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "warm"
+                  },
+                  {
+                    "option": "bold"
+                  },
+                  {
+                    "option": "professional"
+                  },
+                  {
+                    "option": "playful"
+                  }
+                ]
+              },
+              "requiredField": false
+            },
+            {
+              "fieldLabel": "Count",
+              "fieldType": "number",
+              "requiredField": false,
+              "placeholder": "1-10, default 5"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "22a071ea-e27a-490a-aa8b-68adc7f3e0f4",
+      "name": "Caption Request Form",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        320,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://caption-pack-api.onrender.com/v1/caption-pack",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"topic\": \"{{ $json.Topic }}\",\n  \"audience\": \"{{ $json.Audience }}\",\n  \"tone\": \"{{ $json.Tone || 'warm' }}\",\n  \"platform\": \"{{ $json.Platform || 'instagram' }}\",\n  \"count\": {{ $json.Count || 5 }},\n  \"include_hashtags\": true\n}",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": null,
+          "name": "Caption-Pack API Key"
+        }
+      },
+      "id": "cc89508f-5d7b-43c8-bbb9-4ebbda73ff6d",
+      "name": "Call Caption-Pack API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        640,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Format the Caption-Pack API response into a readable block.\n// Incoming: { pack_id, topic, audience, tone, platform, source,\n//             captions: [{id, hook, body, cta, hashtags[]}],\n//             credits_used, credits_remaining }\nconst pack = $input.first().json;\n\nconst tag = (h) => '#' + String(h).replace(/^#+/, '');\nconst lines = (pack.captions || []).map((c, i) => {\n  const tags = (c.hashtags || []).map(tag).join(' ');\n  return `--- Caption ${i + 1} ---\\n${c.hook}\\n\\n${c.body}\\n\\n${c.cta}\\n\\n${tags}`;\n});\n\nreturn [{\n  json: {\n    pack_id: pack.pack_id,\n    topic: pack.topic,\n    audience: pack.audience,\n    tone: pack.tone,\n    platform: pack.platform,\n    source: pack.source,\n    caption_count: (pack.captions || []).length,\n    credits_used: pack.credits_used,\n    credits_remaining: pack.credits_remaining,\n    formatted: lines.join('\\n\\n')\n  }\n}];"
+      },
+      "id": "62afa454-0299-4b6e-a2ec-e07619ea66ba",
+      "name": "Format Captions",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "formTitle": "Your captions are ready!",
+        "formDescription": "=Pack `{{ $json.pack_id }}` \u2014 {{ $json.caption_count }} captions for **{{ $json.topic }}** ({{ $json.audience }}, {{ $json.tone }}, {{ $json.platform }}).\n\n```\n{{ $json.formatted }}\n```\n\nCredits used: {{ $json.credits_used }} | Remaining: {{ $json.credits_remaining }}",
+        "options": {}
+      },
+      "id": "b740f718-776c-43c3-8a90-791f253c22de",
+      "name": "Show Captions",
+      "type": "n8n-nodes-base.formEnding",
+      "typeVersion": 2.1,
+      "position": [
+        1280,
+        420
+      ]
+    }
+  ],
+  "connections": {
+    "Caption Request Form": {
+      "main": [
+        [
+          {
+            "node": "Call Caption-Pack API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Caption-Pack API": {
+      "main": [
+        [
+          {
+            "node": "Format Captions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Captions": {
+      "main": [
+        [
+          {
+            "node": "Show Captions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

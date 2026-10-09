@@ -32,6 +32,8 @@ Check your balance anytime: `GET /v1/balance` with the same `Authorization` head
 - Free trial keys: 25 calls, no card, never top-up-able.
 - Paid: **$10 for 500 calls** (2¢ each) via Stripe on the [landing page](https://muse.ai/s/caption-pack-api-xfxt62ya0xcxlxhh). Keys start with `cp_live_`, free keys with `cp_free_`.
 
+**Like it?** Free 25 credits (no card) → $10 for 500. One Stripe click. No subscription: https://caption-pack-api.onrender.com/v1/checkout
+
 ## Troubleshooting
 
 | Symptom | Likely cause | Fix |

@@ -1,17 +1,17 @@
 # caption-pack-n8n-template
 
-An importable [n8n](https://n8n.io) workflow that turns a topic, audience, tone, and platform into ready-to-post social captions + hashtags — powered by the [Caption-Pack API](https://muse.ai/s/caption-pack-api-xfxt62ya0xcxlxhh). No LLM in the loop: deterministic template-and-variant engine, 1 credit per run.
+An importable [n8n](https://n8n.io) workflow that turns **one piece of content** into platform-ready captions + hashtags for X, LinkedIn, and Instagram — powered by the [Caption-Pack API](https://muse.ai/s/caption-pack-api-xfxt62ya0xcxlxhh). No LLM in the loop: deterministic template-and-variant engine, 1 credit per platform per run.
 
 ## What it does
 
-Fill in a form → the workflow calls `POST /v1/caption-pack` → a Code node formats the returned pack → the completion page shows your captions with the credit balance. Four functional nodes, zero setup beyond an API key.
+Paste your source content (announcement, blog excerpt, key message) into a form → the workflow builds one API job per selected platform, each with a platform-appropriate tone (X → bold, LinkedIn → professional, Instagram → warm, or your own pick) → loops `POST /v1/caption-pack` once per platform → checks your credit balance → compiles everything into a single markdown **content plan** with a suggested posting order. Eight functional nodes, zero setup beyond an API key.
 
 ## Quickstart
 
 1. **Get a free key** (25 calls, no card): open `https://caption-pack-api.onrender.com/v1/free-trial` in your browser. The key is shown **once** — save it somewhere safe.
 2. **Import** `caption-pack-n8n-template.json` into n8n (Workflows → ⋯ → Import from File).
-3. **Create a Header Auth credential**: Name `Authorization`, Value `Bearer ` followed by your key. Select it in the **Call Caption-Pack API** node.
-4. **Test workflow**, fill the form, submit. Your captions land on the completion page.
+3. **Create a Header Auth credential**: Name `Authorization`, Value `Bearer ` followed by your key. Select it in the **Call Caption-Pack API** node **and** the **Check Balance** node.
+4. **Test workflow**, fill the form, submit. Your multi-platform content plan lands on the completion page.
 
 Check your balance anytime: `GET /v1/balance` with the same `Authorization` header.
 
@@ -19,16 +19,20 @@ Check your balance anytime: `GET /v1/balance` with the same `Authorization` head
 
 | Node | Type | Purpose |
 |---|---|---|
-| Caption Request Form | Form Trigger | Topic*, Audience*, Tone dropdown, Platform dropdown, Count |
+| ContentForm | Form Trigger | Source*, Audience*, Platforms dropdown, Tone dropdown, Count per platform |
+| Build Platform Jobs | Code | One API job per platform; resolves per-platform tone defaults |
+| Loop Over Platforms | Split In Batches | Runs the API call once per platform |
 | Call Caption-Pack API | HTTP Request | `POST https://caption-pack-api.onrender.com/v1/caption-pack` |
-| Format Captions | Code | Renders `captions[]` into readable text + surfaces `pack_id`, `credits_used`, `credits_remaining` |
-| Show Captions | Form Ending | Completion page with formatted captions and balance |
+| Collect Packs | Code | Gathers each platform's caption pack after the loop |
+| Check Balance | HTTP Request | `GET https://caption-pack-api.onrender.com/v1/balance` |
+| Build Content Plan | Code | Compiles per-platform captions into a markdown posting plan |
+| Show Content Plan | Form Ending | Completion page with the full plan + credit summary |
 
-(Plus four sticky notes: an overview with setup instructions and one per step.)
+(Plus nine sticky notes: an overview with setup instructions and one per step — laid out with no overlaps, verified in n8n 2.x.)
 
 ## Cost
 
-- Each run costs exactly **1 credit**.
+- Each run costs exactly **1 credit per platform** (3 credits for all three).
 - Free trial keys: 25 calls, no card, never top-up-able.
 - Paid: **$10 for 500 calls** (2¢ each) via Stripe on the [landing page](https://muse.ai/s/caption-pack-api-xfxt62ya0xcxlxhh). Keys start with `cp_live_`, free keys with `cp_free_`.
 
